@@ -385,13 +385,13 @@ class SpatEpi(ModelNumbaDfun):
         label="Iext",
         domain=Range(lo=1.5, hi=5.0, step=0.1),
         default=numpy.array([3.1]),
-        doc="External inumpyut current to the first population")
+        doc="External input current to the first population")
 
     Iext2 = NArray(
         label="Iext2",
         domain=Range(lo=0.0, hi=1.0, step=0.05),
         default=numpy.array([0.45]),
-        doc="External inumpyut current to the second population")
+        doc="External input current to the second population")
 
     gamma = NArray(
         label="gamma",
@@ -645,11 +645,11 @@ def delete_vertices_from_triangular_mesh(vertices, triangles, mask, list_of_metr
     # delete all triangles which contain atleast one vertex that needs to be deleted
     keep_vert = numpy.where(numpy.invert(mask))[0]
     new_vert_idx = numpy.zeros((n_vert), dtype=numpy.int64) -1
-    new_vert_idx[keep_vert] = numpy.arange(len(keep_vert), dtype=numpy.int64)
-    triangles = new_vert_idx[triangles.reshape(-1)].reshape(-1,3)
-    tri_mask = numpy.all(triangles!=-1,axis=1)
-    triangles = triangles[tri_mask]
-    vertices = vertices[keep_vert]
+    new_vert_idx[keep_vert] = numpy.arange(len(keep_vert), dtype=numpy.int64) # Remapping vertices (vertices to be deleted are labeled as -1)
+    triangles = new_vert_idx[triangles.reshape(-1)].reshape(-1,3)             # Remapping triangles (triads with a vertix to be deleted have a -1)
+    tri_mask = numpy.all(triangles!=-1,axis=1)                                # Mask of triangles with a all valid vertices (length n_triangles)
+    triangles = triangles[tri_mask]                                           # Mask the triangles
+    vertices = vertices[keep_vert]                                            # Mask the vertices
     list_of_metrics = [metric[keep_vert] for metric in list_of_metrics]
 
     # triangle deletion can cause some vertices which are not selected for deletion to be isolated
